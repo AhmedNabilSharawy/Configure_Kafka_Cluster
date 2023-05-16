@@ -1,0 +1,31 @@
+- name: Configure ZooKeeper
+  hosts: all
+  become: true
+
+  vars:
+    zookeeper_quorum: "hosts[*]:2181"
+
+  tasks:
+    - name: Add deadsnakes PPA and update package lists
+      apt_repository:
+        repo: 'ppa:deadsnakes/ppa'
+        state: present
+
+    - name: Install ZooKeeper
+      apt:
+        name: zookeeper
+        state: present
+
+    - name: Configure ZooKeeper
+      copy:
+        src: zoo.cfg
+        dest: /etc/zookeeper/conf/zoo.cfg
+      vars:
+        zookeeper_quorum: "{{ zookeeper_quorum }}"
+
+    - name: Install ZooKeeper
+      become: true
+      command: sudo apt-get install zookeeperd -y
+
+
+
